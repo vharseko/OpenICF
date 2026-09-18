@@ -19,13 +19,19 @@
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
+ * Portions Copyrighted 2026 3A Systems, LLC
  */
 package org.identityconnectors.framework.impl.api;
 
+import java.io.File;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.identityconnectors.common.Version;
@@ -49,7 +55,9 @@ import org.identityconnectors.framework.common.objects.Subscription;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.api.operations.batch.BatchBuilder;
 import org.identityconnectors.framework.api.operations.batch.BatchTask;
+import org.identityconnectors.framework.impl.api.local.LocalConnectorInfoManagerImpl;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -84,6 +92,44 @@ public class LocalConnectorInfoManagerTests extends ConnectorInfoManagerTestBase
                 Assert.fail();
             }
         }
+    }
+
+    /**
+     * The directory a bundle is expanded into (its lib/ and native/ entries)
+     * lives in java.io.tmpdir and must not be readable by other local users.
+     */
+    @Test
+    public void testBundleTempDirectoryIsPrivate() throws Exception {
+        if (!FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+            throw new SkipException("POSIX file permissions are not supported here");
+        }
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        Set<String> before = bundleTempDirs(tmpDir);
+
+        // a manager of its own: the cached one has expanded the bundles already
+        new LocalConnectorInfoManagerImpl(getTestBundles(), ConnectorInfoManagerFactory.class
+                .getClassLoader());
+
+        Set<String> created = bundleTempDirs(tmpDir);
+        created.removeAll(before);
+        assertFalse(created.isEmpty(), "no bundle temp directory was created in " + tmpDir);
+        for (String name : created) {
+            assertEquals(Files.getPosixFilePermissions(new File(tmpDir, name).toPath()),
+                    PosixFilePermissions.fromString("rwx------"), name);
+        }
+    }
+
+    private static Set<String> bundleTempDirs(File tmpDir) {
+        Set<String> names = new HashSet<String>();
+        String[] entries = tmpDir.list();
+        if (entries != null) {
+            for (String name : entries) {
+                if (name.startsWith("bundle-") && new File(tmpDir, name).isDirectory()) {
+                    names.add(name);
+                }
+            }
+        }
+        return names;
     }
 
     /**
