@@ -20,6 +20,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  * Portions Copyrighted 2015 ForgeRock AS.
+ * Portions Copyrighted 2026 3A Systems, LLC
  */
 package org.identityconnectors.framework.api;
 
@@ -69,7 +70,12 @@ public final class RemoteFrameworkConnectionInfo {
      * @param key
      *            The remote framework key
      * @param useSSL
-     *            Set to true if we are to connect via SSL.
+     *            Set to true if we are to connect via SSL. The server
+     *            certificate is then verified against {@code host}: it must
+     *            list it as a subjectAltName dNSName or iPAddress entry (or as
+     *            CN when it has no subjectAltName). Setting the system property
+     *            {@code org.identityconnectors.framework.remote.hostnameVerification}
+     *            to {@code false} disables this check (not recommended).
      * @param trustManagers
      *            List of {@link TrustManager}'s to use for establising the SSL
      *            connection. May be null or empty, in which case the default
@@ -102,7 +108,12 @@ public final class RemoteFrameworkConnectionInfo {
      * @param key
      *            The remote framework key
      * @param useSSL
-     *            Set to true if we are to connect via SSL.
+     *            Set to true if we are to connect via SSL. The server
+     *            certificate is then verified against {@code host}: it must
+     *            list it as a subjectAltName dNSName or iPAddress entry (or as
+     *            CN when it has no subjectAltName). Setting the system property
+     *            {@code org.identityconnectors.framework.remote.hostnameVerification}
+     *            to {@code false} disables this check (not recommended).
      * @param trustManagers
      *            List of {@link TrustManager}'s to use for establising the SSL
      *            connection. May be null or empty, in which case the default
