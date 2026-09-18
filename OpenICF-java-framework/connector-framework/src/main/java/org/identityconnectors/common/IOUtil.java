@@ -618,6 +618,30 @@ public final class IOUtil {
     }
 
     /**
+     * Resolves an archive entry name against a directory, refusing names that
+     * would land outside of it, such as {@code ../etc/passwd} (zip slip).
+     *
+     * @param dir
+     *            The directory the entry is extracted into.
+     * @param entryName
+     *            The entry name as recorded in the archive.
+     * @return The file the entry maps to: {@code dir} itself or a file below
+     *         it.
+     * @throws IOException
+     *             If the entry would escape {@code dir}.
+     */
+    public static File resolveEntry(final File dir, final String entryName) throws IOException {
+        final File file = new File(dir, entryName);
+        final String dirPath = dir.getCanonicalPath();
+        final String filePath = file.getCanonicalPath();
+        final String prefix = dirPath.endsWith(File.separator) ? dirPath : dirPath + File.separator;
+        if (!filePath.equals(dirPath) && !filePath.startsWith(prefix)) {
+            throw new IOException("Archive entry " + entryName + " is outside of " + dir);
+        }
+        return file;
+    }
+
+    /**
      * Unjars the given file to the given directory. Does not close the JarFile
      * when finished.
      *
@@ -630,7 +654,7 @@ public final class IOUtil {
         final Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             final JarEntry entry = entries.nextElement();
-            final File outFile = new File(toDir, entry.getName());
+            final File outFile = resolveEntry(toDir, entry.getName());
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(outFile);
