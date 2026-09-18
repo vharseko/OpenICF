@@ -350,12 +350,8 @@ public class ConnectorInfoReportMojo extends AbstractMavenReport implements Conn
                             }
                         } else if (!name.endsWith(".xml")) {
                             if (!destination.exists()) {
-                                FileOutputStream output = null;
-                                try {
-                                    output = new FileOutputStream(destination);
+                                try (FileOutputStream output = new FileOutputStream(destination)) {
                                     IOUtil.copy(zip, output);
-                                } finally {
-                                    IOUtil.close(output);
                                 }
                             }
                         }
