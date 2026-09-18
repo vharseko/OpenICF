@@ -455,7 +455,10 @@ public class LocalConnectorInfoManagerImpl implements ConnectorInfoManager {
 
         public File copyStreamToFile(final InputStream stream, final String name)
                 throws IOException {
-            final File bundleDir = getBundleTempDir();
+            // canonical, like the file resolveEntry returns, so that the
+            // parent walk below ends at bundleDir even when java.io.tmpdir
+            // goes through a symbolic link
+            final File bundleDir = getBundleTempDir().getCanonicalFile();
             // refuses entries such as lib/../../x that would leave bundleDir
             final File newFile = IOUtil.resolveEntry(bundleDir, name);
             if (newFile.exists()) {

@@ -625,17 +625,19 @@ public final class IOUtil {
      *            The directory the entry is extracted into.
      * @param entryName
      *            The entry name as recorded in the archive.
-     * @return The file the entry maps to: {@code dir} itself or a file below
-     *         it.
+     * @return The canonical file the entry maps to: {@code dir} itself or a
+     *         file below it.
      * @throws IOException
      *             If the entry would escape {@code dir}.
      */
     public static File resolveEntry(final File dir, final String entryName) throws IOException {
-        final File file = new File(dir, entryName);
-        final String dirPath = dir.getCanonicalPath();
-        final String filePath = file.getCanonicalPath();
-        final String prefix = dirPath.endsWith(File.separator) ? dirPath : dirPath + File.separator;
-        if (!filePath.equals(dirPath) && !filePath.startsWith(prefix)) {
+        final File root = dir.getCanonicalFile();
+        final File file = new File(root, entryName).getCanonicalFile();
+        final String rootPath = root.getPath();
+        final String prefix = rootPath.endsWith(File.separator) ? rootPath : rootPath + File.separator;
+        // the trailing separator lets the directory itself pass ("dir/")
+        // and keeps a sibling such as "dir2" out
+        if (!(file.getPath() + File.separator).startsWith(prefix)) {
             throw new IOException("Archive entry " + entryName + " is outside of " + dir);
         }
         return file;
