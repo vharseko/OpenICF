@@ -11,6 +11,7 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  * ====================
  * Portions Copyrighted 2015 ForgeRock AS.
+ * Portions Copyrighted 2026 3A Systems, LLC
  */
 
 /**
@@ -297,11 +298,11 @@ public class ConnectionManager extends RemoteConnectionInfoManagerFactory {
 
         SSLContextConfigurator contextConfigurator = createSSLContextConfigurator(clientConfig);
         SSLContext context =
-                null != contextConfigurator ? contextConfigurator.createSSLContext() : null;
+                null != contextConfigurator ? contextConfigurator.createSSLContext(false) : null;
         boolean defaultSecState = (context != null);
         if (context == null) {
             try {
-                context = DEFAULT_CONFIG.createSSLContext();
+                context = DEFAULT_CONFIG.createSSLContext(false);
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
