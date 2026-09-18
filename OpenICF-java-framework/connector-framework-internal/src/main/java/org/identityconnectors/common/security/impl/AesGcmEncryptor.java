@@ -54,6 +54,7 @@ public final class AesGcmEncryptor implements Encryptor {
         }
     }
 
+    @Override
     public byte[] encrypt(byte[] bytes) {
         byte[] iv = new byte[IV_BYTES];
         random.nextBytes(iv);
@@ -70,6 +71,7 @@ public final class AesGcmEncryptor implements Encryptor {
         }
     }
 
+    @Override
     public byte[] decrypt(byte[] bytes) {
         if (bytes.length < IV_BYTES) {
             throw new IllegalArgumentException("Ciphertext is shorter than its IV");
