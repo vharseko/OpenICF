@@ -11,6 +11,7 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  * ====================
  * Portions Copyrighted 2015 ForgeRock AS.
+ * Portions Copyrighted 2026 3A Systems LLC.
  */
 
 /**
@@ -167,9 +168,6 @@ public class ConnectionManager extends RemoteConnectionInfoManagerFactory {
             }
             registry.clear();
 
-            for (WebSocketConnectionGroup group : connectionGroups.values()) {
-                // group.close();
-            }
             connectionGroups.clear();
 
             clientTransport.shutdownNow();
