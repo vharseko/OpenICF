@@ -21,6 +21,7 @@
  * ====================
  *
  * Portions Copyrighted 2012 ForgeRock AS
+ * Portions Copyrighted 2026 3A Systems, LLC
  *
  */
 package org.identityconnectors.contract.test;
@@ -35,6 +36,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.contract.exceptions.ContractException;
 import org.identityconnectors.contract.exceptions.ObjectNotFoundException;
 import org.identityconnectors.framework.api.operations.APIOperation;
 import org.identityconnectors.framework.api.operations.AuthenticationApiOp;
@@ -507,7 +509,12 @@ public class AuthenticationApiOpTests extends ObjectClassRunner {
             Object valueObject =  getDataProvider().getTestSuiteAttribute(name,
                 TEST_NAME);
             if(valueObject != null) {
-            	longValue = Long.parseLong(valueObject.toString());
+            	try {
+            	    longValue = Long.parseLong(valueObject.toString());
+            	} catch (NumberFormatException e) {
+            	    throw new ContractException("Test suite attribute '" + name
+            	            + "' is not a valid number: '" + valueObject + "'", e);
+            	}
             }
         } catch (ObjectNotFoundException ex) {
         }
